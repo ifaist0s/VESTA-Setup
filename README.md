@@ -13,3 +13,12 @@ curl --output /usr/local/vesta/data/templates/dns/mxroute-ghost.tpl https://raw.
 curl --output /usr/local/vesta/data/templates/dns/mxroute-ocean.tpl https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templates/mxroute-ocean.tpl && chown admin:admin /usr/local/vesta/data/templates/dns/mxroute-ocean.tpl && chmod 0775 /usr/local/vesta/data/templates/dns/mxroute-ocean.tpl
 curl --output /usr/local/vesta/data/templates/dns/mxroute-one.tpl https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templates/mxroute-one.tpl && chown admin:admin /usr/local/vesta/data/templates/dns/mxroute-one.tpl && chmod 0775 /usr/local/vesta/data/templates/dns/mxroute-one.tpl
 ```
+or
+```
+su admin
+cd /usr/local/vesta/data/templates/dns
+curl -O https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templates/mxroute-ghost.tpl
+curl -O https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templates/mxroute-ocean.tpl
+curl -O https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templates/mxroute-one.tpl
+chmod 0775 mxroute-*.tpl
+```
