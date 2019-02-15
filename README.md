@@ -25,7 +25,5 @@ curl -O https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templa
 chmod 0775 mxroute-*.tpl
 ```
 
-## Provisioned space (get-prov.sh) ##
-The admin of a VESTA CP Installation can define Packages, that allocate resources to users. When creating new users in VESTA GUI and assigning Packages to them, storage space is provisioned for each one. This is a draft approach in checking how much storage space is provisioned, ny counting how many users there are per different Package.
-
-For starters, the admin needs to manually configure the Package names as variables in the script. Future versions might read the pagkages directly from VESTA.
+## Provisioned space (get-alloc-stor.sh) ##
+The admin of a VESTA CP Installation can define Packages, that allocate resources to users. When creating new users in VESTA GUI and assigning Packages to them, storage space is allocated to each one. This is a draft approach in checking how much storage space is allocated, by counting how many users are assigned to each Package.
