@@ -24,6 +24,8 @@ curl -O https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templa
 curl -O https://raw.githubusercontent.com/ifaist0s/VESTA-Setup/master/DNS-Templates/mxroute-friday.tpl
 chmod 0775 mxroute-*.tpl
 ```
+## PHP-FPM-Templates ##
+VESTA does not support (yet) different php versions per domain. A user has posted a [guide](https://forum.vestacp.com/viewtopic.php?f=41&t=17129) on how to install the required support for that. The files which are contained in this folder are the required template and bash files.
 
 ## Provisioned space (get-alloc-stor.sh) ##
 The admin of a VESTA CP Installation can define Packages, that allocate resources to users. When creating new users in VESTA GUI and assigning Packages to them, storage space is allocated to each one. This is a draft approach in checking how much storage space is allocated, by counting how many users are assigned to each Package.
