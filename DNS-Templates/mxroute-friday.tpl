@@ -13,3 +13,4 @@ ID='12' RECORD='@' TYPE='MX' PRIORITY='10' VALUE='friday.mxlogin.com.' SUSPENDED
 ID='13' RECORD='@' TYPE='MX' PRIORITY='20' VALUE='friday-relay.mxlogin.com.' SUSPENDED='no' TIME='%time%' DATE='%date%'
 ID='14' RECORD='@' TYPE='TXT' PRIORITY='' VALUE='"v=spf1 include:mxlogin.com -all"' SUSPENDED='no' TIME='%time%' DATE='%date%'
 ID='15' RECORD='default._domainkey' TYPE='TXT' PRIORITY='' VALUE='"v=DKIM1; k=rsa;"' SUSPENDED='no' TIME='%time%' DATE='%date%'
+ID='16' RECORD='_dmarc' TYPE='TXT' PRIORITY='' VALUE='"v=DMARC1; p=quarantine; pct=100"' SUSPENDED='no' TIME='%time%' DATE='%date%'
