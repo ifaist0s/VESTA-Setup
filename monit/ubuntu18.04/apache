@@ -1,0 +1,4 @@
+# Apache configuration
+check process apache2 with pidfile /run/apache2/apache2.pid
+    start program = "/bin/systemctl start apache2" with timeout 60 seconds
+    stop program  = "/bin/systemctl stop apache2"
