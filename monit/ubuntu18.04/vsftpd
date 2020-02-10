@@ -1,4 +1,4 @@
-# Monit configuration file for Dovecot Vsftpd
+# Monit configuration file for Vsftpd
 check process vsftpd matching "/usr/sbin/vsftpd"
     start program = "/bin/systemctl start vsftpd" with timeout 60 seconds
     stop program  = "/bin/systemctl stop vsftpd"
