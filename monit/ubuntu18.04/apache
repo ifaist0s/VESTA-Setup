@@ -1,4 +1,17 @@
 # Apache configuration
-check process apache2 with pidfile /run/apache2/apache2.pid
-    start program = "/bin/systemctl start apache2" with timeout 60 seconds
-    stop program  = "/bin/systemctl stop apache2"
+ check process apache with pidfile /var/run/apache2/apache2.pid
+   group www
+   group apache
+   start program = "/etc/init.d/apache2 start"
+   stop program  = "/etc/init.d/apache2 stop"
+   if 4 restarts within 20 cycles then timeout
+   depend apache_bin
+   depend apache_rc
+
+ check file apache_bin with path /usr/sbin/apache2
+   group apache
+   include /etc/monit/templates/rootbin
+
+ check file apache_rc with path /etc/init.d/apache2
+   group apache
+   include /etc/monit/templates/rootbin
