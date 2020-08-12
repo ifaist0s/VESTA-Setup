@@ -40,61 +40,72 @@ if [[ $MAILX == "" ]]
 fi
 
 # This will print space usage by each directory inside directory $DIR, and after MAILX will send email with SUBJECT to MAILTO
-	echo "##### DISK USAGE FOR $DIR #####" > $LOGFILE
-	du -sh ${DIR}/* | sort -hr >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+	echo "##### DISK USAGE FOR $DIR #####" > "$LOGFILE"
+	du -sh ${DIR}/* | sort -hr >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
 
 # This will print inode usage for /home directory
-	echo "##### INODE USAGE #####" >> $LOGFILE
-	df -hi >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+	echo "##### INODE USAGE #####" >> "$LOGFILE"
+	df -hi >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
 
 # Check MailQueue
-	echo "##### CHECKING THE MAIL QUEUE #####" >> $LOGFILE
-	/usr/sbin/exim -bp | /usr/sbin/exiqsumm >> $LOGFILE 2>&1
+	echo "##### CHECKING THE MAIL QUEUE #####" >> "$LOGFILE"
+	/usr/sbin/exim -bp | /usr/sbin/exiqsumm >> "$LOGFILE" 2>&1
+
 # Check free space
-	echo "##### CHECKING FREE SPACE #####" >> $LOGFILE
-	df -Tha --total >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+	echo "##### CHECKING FREE SPACE #####" >> "$LOGFILE"
+	df -Tha --total >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
+
 # Check free memory
-	echo "##### CHECKING FREE MEMORY #####" >> $LOGFILE
-	free -mt >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+	echo "##### CHECKING FREE MEMORY #####" >> "$LOGFILE"
+	free -mt >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
+
 # Perform rsync
-	echo "##### CHECKING RSYNC BACKUP #####" >> $LOGFILE
-	rsync -ahv --no-g -e "ssh -p 22 -i $RSYNKEY" $LOCABAK $BAKUSER@$BAKSERV:$REMOBAK/$BAKFOLD/$(hostname -f) >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+        echo "##### CHECKING FREE SPACE ON REMOTE BACKUP DEVICE #####" >> "$LOGFILE"
+        ssh $BAKUSER@$BAKSERV -i $RSYNKEY "df -h" >> "$LOGFILE" 2>&1
+	echo "##### CHECKING RSYNC BACKUP #####" >> "$LOGFILE"
+	echo "" >> "$LOGFILE"
+	rsync -ahv --no-g -e "ssh -p 22 -i $RSYNKEY" $LOCABAK $BAKUSER@$BAKSERV:$REMOBAK/$BAKFOLD/"$(hostname -f)" >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
+
 # Check fail2ban
-	echo "##### CHECKING FAIL2BAN #####" >> $LOGFILE
-	/usr/sbin/service fail2ban status >> $LOGFILE 2>&1
+	echo "##### CHECKING FAIL2BAN #####" >> "$LOGFILE"
+	/usr/sbin/service fail2ban status >> "$LOGFILE" 2>&1
 	echo "
-	##### CHECKING JAIL SSH #####" >> $LOGFILE
-	fail2ban-client status ssh-iptables >> $LOGFILE 2>&1
+	##### CHECKING JAIL SSH #####" >> "$LOGFILE"
+	fail2ban-client status ssh-iptables >> "$LOGFILE" 2>&1
 	echo "
-	##### CHECKING JAIL DOVECOT #####" >> $LOGFILE
-	fail2ban-client status dovecot-iptables >> $LOGFILE 2>&1
+	##### CHECKING JAIL DOVECOT #####" >> "$LOGFILE"
+	fail2ban-client status dovecot-iptables >> "$LOGFILE" 2>&1
 	echo "
-	##### CHECKING JAIL EXIM #####" >> $LOGFILE
-	fail2ban-client status exim-iptables >> $LOGFILE 2>&1
+	##### CHECKING JAIL EXIM #####" >> "$LOGFILE"
+	fail2ban-client status exim-iptables >> "$LOGFILE" 2>&1
 	echo "
-	##### CHECKING JAIL MYSQL #####" >> $LOGFILE
-	fail2ban-client status mysqld-iptables >> $LOGFILE 2>&1
+	##### CHECKING JAIL MYSQL #####" >> "$LOGFILE"
+	fail2ban-client status mysqld-iptables >> "$LOGFILE" 2>&1
 	echo "
-	##### CHECKING JAIL VSFTPD #####" >> $LOGFILE
-	fail2ban-client status vsftpd-iptables >> $LOGFILE 2>&1
+	##### CHECKING JAIL VSFTPD #####" >> "$LOGFILE"
+	fail2ban-client status vsftpd-iptables >> "$LOGFILE" 2>&1
 	echo "
-	##### CHECKING JAIL VESTA #####" >> $LOGFILE
-	fail2ban-client status $CPNAME-iptables >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+	##### CHECKING JAIL VESTA #####" >> "$LOGFILE"
+	fail2ban-client status $CPNAME-iptables >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
+
 # Check the number of outgoing messages per user
-	echo "##### CHECKING NUMBER OF MESSAGES PER USER #####" >> $LOGFILE
-	grep '<=' /var/log/exim4/mainlog | awk '{print $5}' | grep \@ | sort | uniq -c | sort -nrk1  >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+	echo "##### CHECKING NUMBER OF MESSAGES PER USER #####" >> "$LOGFILE"
+	grep '<=' /var/log/exim4/mainlog | awk '{print $5}' | grep \@ | sort | uniq -c | sort -nrk1  >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
+
 # Check failures in DNS
-	echo "##### CHECKING DNS FAILURES #####" >> $LOGFILE
-	tail -c 8192 /var/log/syslog | grep denied >> $LOGFILE 2>&1
-	echo "" >> $LOGFILE
+	echo "##### CHECKING DNS FAILURES #####" >> "$LOGFILE"
+	tail -c 8192 /var/log/syslog | grep denied >> "$LOGFILE" 2>&1
+	echo "" >> "$LOGFILE"
+
 # Clean PHP session files older than 24h
-        for d in /home/*; do /usr/bin/find $d/tmp/sess_* -mmin +1440 -delete; done &> /dev/null
+        for d in /home/*; do /usr/bin/find "$d"/tmp/sess_* -mmin +1440 -delete; done &> /dev/null
+
 # Send email alert
-	$MAILX -r root -s "$SUBJECT" "$MAILTO" < $LOGFILE 2>&1
+	$MAILX -r root -s "$SUBJECT" "$MAILTO" < "$LOGFILE" 2>&1
