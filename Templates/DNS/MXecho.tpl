@@ -17,4 +17,4 @@ ID='16' RECORD='webmail' TYPE='CNAME' PRIORITY='' VALUE='echo.mxrouting.net.' SU
 ID='17' RECORD='@' TYPE='MX' PRIORITY='10' VALUE='echo.mxrouting.net.' SUSPENDED='no' TIME='%time%' DATE='%date%'
 ID='18' RECORD='@' TYPE='TXT' PRIORITY='' VALUE='"v=spf1 a mx ip4:%ip% include:mxlogin.com ?all"' SUSPENDED='no' TIME='%time%' DATE='%date%'
 ID='19' RECORD='_dmarc' TYPE='TXT' PRIORITY='' VALUE='"v=DMARC1; p=quarantine; pct=100"' SUSPENDED='no' TIME='%time%' DATE='%date%'
-ID='20' RECORD='default._domainkey' TYPE='TXT' PRIORITY='' VALUE='"v=DKIM1; k=rsa;"' SUSPENDED='no' TIME='%time%' DATE='%date%'
+ID='20' RECORD='x._domainkey' TYPE='TXT' PRIORITY='' VALUE='"v=DKIM1; k=rsa;"' SUSPENDED='no' TIME='%time%' DATE='%date%'
