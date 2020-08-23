@@ -40,7 +40,7 @@ if [[ $MAILX == "" ]]
 fi
 
 # This will print space usage by each directory inside directory $DIR, and after MAILX will send email with SUBJECT to MAILTO
-	{ echo "##### DISK USAGE FOR $DIR #####" ; du -sh ${DIR}/* | sort -hr ; echo "" ; } >> "$LOGFILE" 2>&1
+	{ echo "##### DISK USAGE FOR $DIR #####" ; du -sh ${DIR}/* | sort -hr ; echo "" ; } > "$LOGFILE" 2>&1
 
 # This will print inode usage for /home directory
 	{ echo "##### INODE USAGE #####" ; df -hi ; echo "" ; } >> "$LOGFILE" 2>&1
@@ -52,7 +52,7 @@ fi
 	{ echo "##### CHECKING FREE SPACE #####" ; df -Tha --total ; echo "" ; } >> "$LOGFILE" 2>&1
 
 # Check free memory
-	{ echo "##### CHECKING FREE MEMORY #####" ; free -mt ; echo "" ; } >> "$LOGFILE" 2>&1
+	{ echo "##### CHECKING FREE MEMORY #####" ; free -mth ; echo "" ; } >> "$LOGFILE" 2>&1
 
 # Checking freespace before rsync rsync
 	{ echo "##### CHECKING FREE SPACE ON REMOTE BACKUP DEVICE #####" ; ssh $BAKUSER@$BAKSERV -i $RSYNKEY "df -h" ; } >> "$LOGFILE" 2>&1
