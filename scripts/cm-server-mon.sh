@@ -17,10 +17,11 @@ LOGFILE=$0.log
 
 # rsync variables (ssh key, local backup directory, remote backup directory, backup server)
 RSYNKEY=$HOME/rsa-key-backup.key
-LOCABAK=/backup/
-REMOBAK=/v-backup
+LOCABAK=/backup/		# Local directory to be backed up
+REMOBAK=/v-backup		# No trailing slash
 BAKFOLD=[CHANGE ME]		# No slashes
 BAKSERV=[CHANGE ME]		# Hostname or IP address
+BAKPORT=[CHANGE ME]		# Port the rsync/ssh server runs on
 BAKUSER=[CHANGE ME]		# Hostname or IP address
 
 # Manual set the environment so it accepts non ASCII characters https://stackoverflow.com/a/18717024/5211506
@@ -58,7 +59,7 @@ fi
 	{ echo "##### CHECKING FREE SPACE ON REMOTE BACKUP DEVICE #####" ; ssh $BAKUSER@$BAKSERV -i $RSYNKEY "df -h" ; } >> "$LOGFILE" 2>&1
 	
 # Perform rsync
-	{ echo "" ; echo "##### CHECKING RSYNC BACKUP #####" ; echo "" ; rsync -ahv --no-g -e "ssh -p 22 -i $RSYNKEY" $LOCABAK $BAKUSER@$BAKSERV:$REMOBAK/$BAKFOLD/"$(hostname -f)" ; echo "" ; } >> "$LOGFILE" 2>&1
+	{ echo "" ; echo "##### CHECKING RSYNC BACKUP #####" ; echo "" ; rsync -ahv --no-g -e "ssh -p $BAKPORT -i $RSYNKEY" $LOCABAK $BAKUSER@$BAKSERV:$REMOBAK/$BAKFOLD/"$(hostname -f)" ; echo "" ; } >> "$LOGFILE" 2>&1
 
 # Check fail2ban
 	{ echo "##### CHECKING FAIL2BAN #####" ; /usr/sbin/service fail2ban status ; echo "" ; } >> "$LOGFILE" 2>&1
