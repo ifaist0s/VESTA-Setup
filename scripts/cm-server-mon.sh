@@ -1,10 +1,11 @@
 #!/bin/bash
+# 2020-11-28-01
 
 # Variable of directory that we'll check the size of
 DIR='/home'
 
 # Email address we'll send alerts to
-MAILTO='[CHANGE ME]'
+MAILTO="[CHANGE ME]"
 
 # Variable SUBJECT holds email's subject
 SUBJECT="SERVER STATUS: $(hostname -f)"
@@ -14,18 +15,13 @@ MAILX="$(command -v mailx)"
 
 # Define the log file / Same name as script file but with .log extension
 LOGFILE=$0.log
+USEBAKSERVER=B			# Use different Backup Servers. In case one is down, quickly switch to another.
 
 # rsync variables (ssh key, local backup directory, remote backup directory, backup server)
-RSYNKEY=$HOME/rsa-key-backup.key
 LOCABAK=/backup/		# Local directory to be backed up
-REMOBAK=/v-backup		# No trailing slash
-BAKFOLD=[CHANGE ME]		# No slashes
-BAKSERV=[CHANGE ME]		# Hostname or IP address
-BAKPORT=[CHANGE ME]		# Port the rsync/ssh server runs on
-BAKUSER=[CHANGE ME]		# Hostname or IP address
 
 # Manual set the environment so it accepts non ASCII characters https://stackoverflow.com/a/18717024/5211506
-export LC_CTYPE="el_GR.UTF-8"
+export LC_CTYPE="el_GR.utf8"
 
 # Check if this is a VESTA or HESTIA installation
 [[ -d /usr/local/vesta/ ]] && CPNAME=vesta
@@ -34,13 +30,13 @@ export LC_CTYPE="el_GR.UTF-8"
 # Throw error and exit if mailx is not installed
 if [[ $MAILX == "" ]]
 	then
-	  echo "Please install mailx"
+	  echo "Please install mailx (apt install mailutils)"
 	#Here we warn user that mailx not installed
 	  exit 1
 	#Here we will exit from script
 fi
 
-# This will print space usage by each directory inside directory $DIR, and after MAILX will send email with SUBJECT to MAILTO
+# This will print the space usage by each directory inside directory $DIR
 	{ echo "##### DISK USAGE FOR $DIR #####" ; du -sh ${DIR}/* | sort -hr ; echo "" ; } > "$LOGFILE" 2>&1
 
 # This will print inode usage for /home directory
@@ -55,22 +51,50 @@ fi
 # Check free memory
 	{ echo "##### CHECKING FREE MEMORY #####" ; free -mth ; echo "" ; } >> "$LOGFILE" 2>&1
 
-# Checking freespace before rsync rsync
-	{ echo "##### CHECKING FREE SPACE ON REMOTE BACKUP DEVICE #####" ; ssh $BAKUSER@$BAKSERV -i $RSYNKEY "df -h" ; } >> "$LOGFILE" 2>&1
+# Rsync to different server based on VARIABLE selection
+case $USEBAKSERVER in
+	A)       
+		RSYNKEY=[CHANGE ME]		# Key file name with full path. Mind permissions on file
+		REMOBAK=[CHANGE ME]		# No trailing slash
+		BAKFOLD=[CHANGE ME]		# No slashes
+		BAKSERV=[CHANGE ME]		# Hostname or IP address
+		BAKPORT=[CHANGE ME]		# Port the rsync/ssh server runs on
+		BAKUSER=[CHANGE ME]		# Hostname or IP address
+		# Checking freespace before rsync
+		{ echo "##### CHECKING FREE SPACE ON REMOTE BACKUP DEVICE #####" ; ssh "$BAKUSER"@"$BAKSERV" -i "$RSYNKEY" "df -h" ; echo "" ; } >> "$LOGFILE" 2>&1
+		;;
+	B)
+		RSYNKEY=[CHANGE ME]		# Key file name with full path. Mind permissions on file
+		REMOBAK=[CHANGE ME]		# No trailing slash
+		BAKFOLD=[CHANGE ME]		# No slashes
+		BAKSERV=[CHANGE ME]		# Hostname or IP address
+		BAKPORT=[CHANGE ME]		# Port the rsync/ssh server runs on
+		BAKUSER=[CHANGE ME]		# Hostname or IP address
+		;;            
+	*)              
+esac 
 	
 # Perform rsync
-	{ echo "" ; echo "##### CHECKING RSYNC BACKUP #####" ; echo "" ; rsync -ahv --no-g -e "ssh -p $BAKPORT -i $RSYNKEY" $LOCABAK $BAKUSER@$BAKSERV:$REMOBAK/$BAKFOLD/"$(hostname -f)" ; echo "" ; } >> "$LOGFILE" 2>&1
+	{ echo "" ; echo "##### CHECKING RSYNC BACKUP #####" ; echo "" ; rsync -ahv --no-g -e "ssh -p $BAKPORT -i $RSYNKEY" "$LOCABAK" "$BAKUSER"@"$BAKSERV":"$REMOBAK"/"$BAKFOLD"/"$(hostname -f)" ; echo "" ; } >> "$LOGFILE" 2>&1
 
-# Check fail2ban
-	{ echo "##### CHECKING FAIL2BAN #####" ; /usr/sbin/service fail2ban status ; echo "" ; } >> "$LOGFILE" 2>&1
-	{ echo "##### CHECKING JAIL SSH #####" ; fail2ban-client status ssh-iptables ; echo "" ; } >> "$LOGFILE" 2>&1
-	{ echo "##### CHECKING JAIL DOVECOT #####" ; fail2ban-client status dovecot-iptables ; echo "" ; } >> "$LOGFILE" 2>&1
-	{ echo "##### CHECKING JAIL EXIM #####" ; fail2ban-client status exim-iptables ; echo "" ; } >> "$LOGFILE" 2>&1
-	{ echo "##### CHECKING JAIL MYSQL #####" ; fail2ban-client status mysqld-iptables ; echo "" ; } >> "$LOGFILE" 2>&1
-	{ echo "##### CHECKING JAIL VSFTPD #####" ; fail2ban-client status vsftpd-iptables ; echo "" ; } >> "$LOGFILE" 2>&1
-	{ echo "##### CHECKING JAIL VESTA/HESTIA #####" ; fail2ban-client status $CPNAME-iptables ; echo "" ; } >> "$LOGFILE" 2>&1
+# Define fail2ban check function
+	check_f2b() {
+		if /usr/bin/fail2ban-client status | grep "$1" > /dev/null 2>&1 ; then
+			{ echo "##### CHECKING JAIL $1 #####" ; fail2ban-client status "$1" ; echo "" ; } >> "$LOGFILE" 2>&1 ;
+			else
+			{ echo "##### JAIL $1 DOES NOT EXIST #####" ; echo "" ; } >> "$LOGFILE" 2>&1 ;
+		fi
+	}
+
+# Perform the actual fail2ban checking
+	check_f2b ssh-iptables
+	check_f2b dovecot-iptables
+	check_f2b exim-iptables
+	check_f2b mysqld-iptables
+	check_f2b vsftpd-iptables
+	check_f2b $CPNAME-iptables
 	if [ $CPNAME = "hestia" ]; then
-		{ echo "##### CHECKING JAIL RECIDIVE #####" ; fail2ban-client status recidive ; echo "" ; } >> "$LOGFILE" 2>&1
+		check_f2b recidive
 	fi
 
 # Check the number of outgoing messages per user
