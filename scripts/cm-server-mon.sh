@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2020-11-28-01
+# 2021-02-11-01
 
 # Variable of directory that we'll check the size of
 DIR='/home'
@@ -69,13 +69,16 @@ case $USEBAKSERVER in
 		BAKFOLD=[CHANGE ME]		# No slashes
 		BAKSERV=[CHANGE ME]		# Hostname or IP address
 		BAKPORT=[CHANGE ME]		# Port the rsync/ssh server runs on
-		BAKUSER=[CHANGE ME]		# Hostname or IP address
+		BAKUSER=[CHANGE ME]		# Username that will login to server
 		;;            
 	*)              
-esac 
-	
+esac
+
+# Warm-up DNS cache to avoid resolution timeout during rsync
+dig +short $BAKSERV > /dev/null 2>&1
+
 # Perform rsync
-	{ echo "" ; echo "##### CHECKING RSYNC BACKUP #####" ; echo "" ; rsync -ahv --no-g -e "ssh -p $BAKPORT -i $RSYNKEY" "$LOCABAK" "$BAKUSER"@"$BAKSERV":"$REMOBAK"/"$BAKFOLD"/"$(hostname -f)" ; echo "" ; } >> "$LOGFILE" 2>&1
+	{ echo "" ; echo "##### CHECKING RSYNC BACKUP #####" ; echo "" ; { time rsync -ahv --no-g -e "ssh -p $BAKPORT -i $RSYNKEY" "$LOCABAK" "$BAKUSER"@"$BAKSERV":"$REMOBAK"/"$BAKFOLD"/"$(hostname -f)" >> "$LOGFILE" 2>&1 ; } ; echo "" ;} >> "$LOGFILE" 2>&1
 
 # Define fail2ban check function
 	check_f2b() {
